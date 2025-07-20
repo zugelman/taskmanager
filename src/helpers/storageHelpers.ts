@@ -8,6 +8,11 @@ import { safeJsonParse } from '../types';
  * Безопасно читает данные из localStorage
  */
 export const safeGetFromStorage = <T>(key: string, defaultValue: T, guard?: (value: unknown) => value is T): T => {
+  if (!isLocalStorageSupported()) {
+    console.warn('localStorage is not supported, returning default value');
+    return defaultValue;
+  }
+  
   try {
     const data = localStorage.getItem(key);
     if (guard) {
@@ -26,22 +31,16 @@ export const safeGetFromStorage = <T>(key: string, defaultValue: T, guard?: (val
  * Безопасно записывает данные в localStorage
  */
 export const safeSetToStorage = <T>(key: string, value: T): void => {
+  if (!isLocalStorageSupported()) {
+    console.warn('localStorage is not supported, cannot save data');
+    return;
+  }
+  
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error(`Failed to write to localStorage (${key}):`, error);
     throw error;
-  }
-};
-
-/**
- * Безопасно удаляет данные из localStorage
- */
-export const safeRemoveFromStorage = (key: string): void => {
-  try {
-    localStorage.removeItem(key);
-  } catch (error) {
-    console.error(`Failed to remove from localStorage (${key}):`, error);
   }
 };
 
